@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MicroV - Análisis bajo el microscopio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'background-dark': '#262626',
+                        'sidebar-dark': '#1e1e1e',
+                        'button-dark': '#4a4a4a',
+                        'text-light': '#ffffff',
+                        'primary': '#6366f1', // Indigo 500
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        /* Estilos personalizados para el cursor al dibujar */
+        .drawing-cursor {
+            cursor: crosshair;
+        }
+    </style>
+</head>
+<body class="bg-background-dark text-text-light overflow-hidden">
+
+    <div class="h-screen w-screen flex flex-col items-center justify-center relative">
+
+        <aside id="sidebar" class="fixed top-0 left-0 w-16 h-full bg-sidebar-dark z-40 shadow-lg flex flex-col items-center py-8">
+            <nav class="h-full flex flex-col items-center justify-start space-y-8">
+                <button id="startCameraBtn" class="w-12 h-12 flex items-center justify-center rounded-xl bg-button-dark shadow-md hover:bg-primary transition-colors duration-200">
+                    <img src="/static/camera-on.svg" alt="Iniciar Cámara" class="w-8 h-8">
+                </button>
+                <button id="stopCameraBtn" class="w-12 h-12 flex items-center justify-center rounded-xl bg-button-dark shadow-md hover:bg-primary transition-colors duration-200" style="display: none;">
+                    <img src="/static/camera-off.svg" alt="Detener Cámara" class="w-8 h-8">
+                </button>
+                <button id="boxBtn" class="w-12 h-12 flex items-center justify-center rounded-xl bg-button-dark shadow-md hover:bg-primary transition-colors duration-200">
+                    <img src="/static/box.svg" alt="Encajonar" class="w-8 h-8">
+                </button>
+                <button id="scanBtn" class="w-12 h-12 flex items-center justify-center rounded-xl bg-button-dark shadow-md hover:bg-primary transition-colors duration-200">
+                    <img src="/static/scan.svg" alt="Detección" class="w-8 h-8">
+                </button>
+                <button class="control-btn" id="fileExploreBtn" title="Explorar y subir imagen">
+                    <img src="/static/folder-search.svg" alt="Explorar Archivos">
+                </button>
+                
+                <div class="w-full h-px bg-gray-600 my-4"></div>
+
+                <button id="boostBtn" class="w-12 h-12 flex items-center justify-center rounded-xl bg-button-dark shadow-md hover:bg-primary transition-colors duration-200">
+                    <img src="/static/boost.svg" alt="Mejorar Plan" class="w-8 h-8">
+                </button>
+                <button id="userBtn" class="w-12 h-12 flex items-center justify-center rounded-xl bg-button-dark shadow-md hover:bg-primary transition-colors duration-200">
+                    <img src="/static/user.svg" alt="Usuario" class="w-8 h-8">
+                </button>
+            </nav>
+        </aside>
+        
+        <div class="w-full h-full flex items-center justify-center">
+            <video id="videoFeed" class="w-full h-full object-cover" autoplay playsinline style="display: none;"></video>
+            <img id="uploadedImage" class="w-full h-full object-contain" alt="Imagen seleccionada" style="display: none;">
+            <canvas id="detectionOverlay" class="absolute inset-0 w-full h-full"></canvas>
+            <div id="welcomeMessage" class="absolute z-10 p-8 text-center bg-text-light bg-opacity-75 rounded-xl shadow-lg">
+                <h1 class="text-3xl font-bold mb-4">¡Bienvenido a MicroV!</h1>
+                <p class="text-lg">Toca "Iniciar cámara" o "Explorar archivos" para comenzar el análisis.</p>
+            </div>
+        </div>
+
+        <button id="aiChatToggleBtn" class="fixed top-4 right-4 w-12 h-12 flex items-center justify-center rounded-xl bg-button-dark shadow-md z-50 hover:bg-primary transition-colors duration-200">
+            <ion-icon name="moon-outline" class="text-2xl text-text-light"></ion-icon>
+        </button>
+
+        <div id="aiChatContainer" class="fixed right-0 top-0 bottom-0 bg-sidebar-dark z-40 transition-all duration-500 ease-in-out w-0 overflow-hidden">
+            <aside id="aiPanel" class="w-full h-full p-4 flex flex-col">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold">Luna AI</h2>
+                    <button id="closeAIPanelBtn" class="text-gray-400 hover:text-white transition-colors duration-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div id="aiChatWindow" class="flex-grow overflow-y-auto mb-4 p-2 bg-button-dark rounded-lg">
+                    <p class="text-sm text-gray-400">¡Hola! Soy Luna. Usa los botones a continuación para empezar a analizar la imagen.</p>
+                </div>
+                <div class="prompt-buttons-container flex flex-col space-y-2">
+                    <button id="promptBtn1" class="w-full p-2 rounded-lg bg-button-dark text-text-light hover:bg-white hover:text-background-dark transition-colors duration-200">
+                        ¿Qué estoy mirando?
+                    </button>
+                    <button id="promptBtn2" class="w-full p-2 rounded-lg bg-button-dark text-text-light hover:bg-white hover:text-background-dark transition-colors duration-200">
+                        Conteo
+                    </button>
+                </div>
+            </aside>
+        </div>
+
+    </div>
+
+    <input type="file" id="file-input" class="hidden" accept="image/jpeg, image/png">
+
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    
+    <script src="/static/main.js"></script>
+</body>
+</html>

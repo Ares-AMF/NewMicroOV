@@ -1,0 +1,72 @@
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+/* Ocultar el scroll horizontal */
+body, html {
+    overflow-x: hidden;
+}
+
+/* Animación para el panel de IA (ya no es tan necesaria con Tailwind, pero la mantengo) */
+.ai-panel-transition {
+    transition: transform 0.3s ease-in-out;
+}
+
+#welcomeMessage h1 {
+    color: #262626;
+}
+
+#welcomeMessage p {
+    color: #262626;
+}
+
+#welcomeMessage {
+    background-color: #f8f8f8;
+}
+
+/* Aplica un filtro de color blanco a los íconos (SVG y Ion-icon) de la barra lateral */
+#sidebar button img,
+#sidebar button ion-icon {
+    filter: invert(1);
+    transition: filter 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+/* Cambia el color de fondo y el filtro del ícono al pasar el cursor */
+#sidebar button:hover {
+    background-color: #f8f8f8;
+}
+
+#sidebar button:hover img,
+#sidebar button:hover ion-icon {
+    filter: invert(0);
+    color: #262626; /* Color de texto oscuro para los íconos Ion */
+}
+
+/* Estilos para el nuevo botón de chat de la IA, si lo dejas fuera de la barra lateral */
+#aiChatToggleBtn:hover {
+    background-color: #f8f8f8;
+}
+
+#aiChatToggleBtn:hover ion-icon {
+    color: #262626;
+    filter: none;
+}
+
+/* Nuevo estilo para los botones de control generales */
+.control-btn {
+    width: 3rem; /* 48px */
+    height: 3rem; /* 48px */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.75rem; /* 12px */
+    background-color: #4a4a4a; /* button-dark */
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 200ms;
+}
+
+.control-btn:hover {
+    background-color: #6366f1; /* primary */
+}
